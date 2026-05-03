@@ -20,7 +20,7 @@ export const completeOnboarding = async (data) => {
         }
     }
     try{
-        await db.user.update({
+        await db.User.update({
             where: { clerkUserId: user.id },
             data: {
                 role,
