@@ -2,6 +2,8 @@ import { redirect, notFound } from "next/navigation";
 import { getCallData } from "@/actions/call";
 import CallRoom from "./_components/CallRoom";
 
+export const dynamic = "force-dynamic";
+
 export default async function CallPage({ params }) {
   const { callId } = await params;
 

@@ -7,6 +7,8 @@ import PageHeader from "@/components/reusables";
 import { Button } from "@/components/ui/button";
 import { CalendarDays } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function MyAppointmentsPage() {
   const user = await currentUser();
   if (!user) redirect("/");
