@@ -9,11 +9,12 @@ import { CalendarDays, Users } from "lucide-react";
 
 const Header = async () => {
   let user = null;
+  
   try {
     user = await checkUser();
   } catch (error) {
-    console.error("Failed to check user:", error);
-    // Continue rendering without user data
+    console.error("Failed to check user in Header:", error?.message || error);
+    user = null;
   }
 
   return (
@@ -28,7 +29,7 @@ const Header = async () => {
         />
       </Link>
 
-      {user && <RoleRedirect role={user.role} />}
+      {user?.role && <RoleRedirect role={user.role} />}
 
       <div className="flex items-center gap-3">
         {user ? (
