@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // REMOVE this if exists
-  // experimental: { turbo: true }
   reactStrictMode: false,
   images:{
     remotePatterns:[
