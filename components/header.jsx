@@ -8,7 +8,13 @@ import CreditButton from "./CreditButton";
 import { CalendarDays, Users } from "lucide-react";
 
 const Header = async () => {
-  const user = await checkUser();
+  let user = null;
+  try {
+    user = await checkUser();
+  } catch (error) {
+    console.error("Failed to check user:", error);
+    // Continue rendering without user data
+  }
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-3 sm:px-10 py-3 border-b border-white/7 backdrop-blur-xl">
