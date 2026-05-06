@@ -41,7 +41,13 @@ export const setAvailability = async ({ startTime, endTime }) => {
   if (!dbUser || dbUser.role !== "INTERVIEWER") throw new Error("Forbidden");
 
   if (!startTime || !endTime) throw new Error("Start and end time required");
-  if (new Date(startTime) >= new Date(endTime)) {
+
+  // Use fixed base date so a daily time window (e.g. 08:00–17:00) is never
+  // incorrectly rejected just because the current wall-clock time has passed.
+  const baseDate = "1970-01-01T";
+  const start = new Date(baseDate + new Date(startTime).toTimeString().slice(0, 8));
+  const end   = new Date(baseDate + new Date(endTime).toTimeString().slice(0, 8));
+  if (start >= end) {
     throw new Error("Start time must be before end time");
   }
 
@@ -79,10 +85,12 @@ export const setAvailability = async ({ startTime, endTime }) => {
 
 export const getAvailability = async () => {
   const user = await currentUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) return null;
 
   const dbUser = await db.user.findUnique({ where: { clerkUserId: user.id } });
-  if (!dbUser) throw new Error("User not found");
+  // Return null instead of throwing — a missing user (e.g. new signup) should
+  // not crash the dashboard's Promise.all and should just show no availability.
+  if (!dbUser) return null;
 
   return db.availability.findFirst({
     where: { interviewerId: dbUser.id, status: "AVAILABLE" },
@@ -94,7 +102,7 @@ export const getInterviewerAppointments = async () => {
   if (!user) throw new Error("Unauthorized");
 
   const dbUser = await db.user.findUnique({ where: { clerkUserId: user.id } });
-  if (!dbUser) throw new Error("User not found");
+  if (!dbUser) return [];
 
   return db.booking.findMany({
     where: { interviewerId: dbUser.id },
@@ -122,7 +130,14 @@ export const getInterviewerStats = async () => {
     },
   });
 
-  if (!dbUser) throw new Error("User not found");
+  if (!dbUser) {
+    return {
+      creditBalance: 0,
+      creditRate: 1,
+      totalEarned: 0,
+      completedSessions: 0,
+    };
+  }
 
   const totalEarned = dbUser.bookingsAsInterviewer.reduce(
     (sum, booking) => sum + booking.creditsCharged,
@@ -230,7 +245,7 @@ export const getWithdrawalHistory = async () => {
   if (!user) throw new Error("Unauthorized");
 
   const dbUser = await db.user.findUnique({ where: { clerkUserId: user.id } });
-  if (!dbUser) throw new Error("User not found");
+  if (!dbUser) return [];
 
   return db.payout.findMany({
     where: { interviewerId: dbUser.id },

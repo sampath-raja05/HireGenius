@@ -3,7 +3,7 @@ import React from 'react'
 export const dynamic = 'force-dynamic';
 
 const MainLayout = ({ children }) => {
-  return <div className='container mx-auto my-32'>{children}</div>
+  return <div className='flex flex-col min-h-screen'>{children}</div>
 }
 
 export default MainLayout
